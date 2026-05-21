@@ -2,6 +2,7 @@
 #include <iomanip>
 using namespace std;
 
+// ================= STRUCT DATA KARYAWAN =================
 struct Karyawan {
     int nip;
     string nama;
@@ -9,6 +10,7 @@ struct Karyawan {
     string status;
 };
 
+// ================= STRUCT BST =================
 struct Node {
     Karyawan data;
     Node* left;
@@ -20,7 +22,8 @@ struct Node {
     }
 };
 
-// ===== STACK MANUAL =====
+Node* root = NULL;
+
 struct Riwayat {
     int nip;
     string aksi;
@@ -44,12 +47,13 @@ bool riwayatKosong() {
 Riwayat popRiwayat() {
     Riwayat data = *topRiwayat;
     Riwayat* hapus = topRiwayat;
+
     topRiwayat = topRiwayat->next;
     delete hapus;
+
     return data;
 }
 
-// ===== QUEUE MANUAL =====
 struct Antrian {
     int nip;
     Antrian* next;
@@ -63,7 +67,7 @@ void enqueue(int nip) {
     baru->nip = nip;
     baru->next = NULL;
 
-    if (rearAntrian == NULL) {
+    if (frontAntrian == NULL) {
         frontAntrian = rearAntrian = baru;
     } else {
         rearAntrian->next = baru;
@@ -77,8 +81,9 @@ void dequeue() {
     Antrian* hapus = frontAntrian;
     frontAntrian = frontAntrian->next;
 
-    if (frontAntrian == NULL)
+    if (frontAntrian == NULL) {
         rearAntrian = NULL;
+    }
 
     delete hapus;
 }
@@ -91,69 +96,135 @@ int frontQueue() {
     return frontAntrian->nip;
 }
 
-// ===== BST =====
-Node* root = NULL;
-
+// ================= FUNGSI BST =================
 Node* insert(Node* node, Karyawan k) {
-    if (node == NULL)
+    if (node == NULL) {
         return new Node(k);
+    }
 
-    if (k.nip < node->data.nip)
+    if (k.nip < node->data.nip) {
         node->left = insert(node->left, k);
-
-    else if (k.nip > node->data.nip)
+    } else if (k.nip > node->data.nip) {
         node->right = insert(node->right, k);
-
-    return node;
-}
-
-Node* cari(Node* node, int nip) {
-    if (node == NULL)
-        return NULL;
-
-    if (nip == node->data.nip)
-        return node;
-
-    if (nip < node->data.nip)
-        return cari(node->left, nip);
-
-    return cari(node->right, nip);
-}
-
-Node* hapus(Node* node, int nip) {
-    if (node == NULL)
-        return NULL;
-
-    if (nip < node->data.nip)
-        node->left = hapus(node->left, nip);
-
-    else if (nip > node->data.nip)
-        node->right = hapus(node->right, nip);
-
-    else {
-        if (node->left == NULL)
-            return node->right;
-
-        else if (node->right == NULL)
-            return node->left;
     }
 
     return node;
 }
 
+Node* cari(Node* node, int nip) {
+    if (node == NULL) {
+        return NULL;
+    }
+
+    if (nip == node->data.nip) {
+        return node;
+    }
+
+    if (nip < node->data.nip) {
+        return cari(node->left, nip);
+    }
+
+    return cari(node->right, nip);
+}
+
+Node* cariMinimum(Node* node) {
+    while (node != NULL && node->left != NULL) {
+        node = node->left;
+    }
+
+    return node;
+}
+
+Node* hapus(Node* node, int nip) {
+    if (node == NULL) {
+        return NULL;
+    }
+
+    if (nip < node->data.nip) {
+        node->left = hapus(node->left, nip);
+    } else if (nip > node->data.nip) {
+        node->right = hapus(node->right, nip);
+    } else {
+        if (node->left == NULL && node->right == NULL) {
+            delete node;
+            return NULL;
+        } else if (node->left == NULL) {
+            Node* temp = node->right;
+            delete node;
+            return temp;
+        } else if (node->right == NULL) {
+            Node* temp = node->left;
+            delete node;
+            return temp;
+        } else {
+            Node* pengganti = cariMinimum(node->right);
+            node->data = pengganti->data;
+            node->right = hapus(node->right, pengganti->data.nip);
+        }
+    }
+
+    return node;
+}
+
+// ================= TAMPILAN =================
+void garisMenu() {
+    cout << "=====================================\n";
+}
+
+void garisPendek() {
+    cout << "-------------------------------------\n";
+}
+
 void garisTabel() {
-    cout << "+----------+---------------+---------------+---------------+" << endl;
+    cout << "+----------+---------------+---------------+---------------+\n";
+}
+
+void pesanBerhasil(string pesan) {
+    cout << "\n[BERHASIL] " << pesan << endl;
+}
+
+void pesanGagal(string pesan) {
+    cout << "\n[GAGAL] " << pesan << endl;
+}
+
+void pesanInfo(string pesan) {
+    cout << "\n[INFO] " << pesan << endl;
+}
+
+void tampilMenu() {
+    cout << "\n";
+    garisMenu();
+    cout << "        SISTEM PENGAJUAN CUTI        \n";
+    garisMenu();
+    cout << " 1. Tambah Karyawan\n";
+    cout << " 2. Edit Karyawan\n";
+    cout << " 3. Tampilkan Data Karyawan\n";
+    cout << " 4. Ajukan Cuti\n";
+    cout << " 5. Selesaikan Cuti\n";
+    cout << " 6. Hapus Karyawan\n";
+    cout << " 7. Undo Aksi Terakhir\n";
+    cout << " 8. Tampilkan Antrian Cuti\n";
+    cout << " 0. Keluar\n";
+    garisMenu();
+    cout << "Pilih menu: ";
+}
+
+void judulHalaman(string judul) {
+    cout << "\n";
+    garisPendek();
+    cout << "        " << judul << endl;
+    garisPendek();
 }
 
 void tampil(Node* node) {
-    if (node) {
+    if (node != NULL) {
         tampil(node->left);
 
         cout << "| " << setw(8) << node->data.nip
              << " | " << setw(13) << node->data.nama
              << " | " << setw(13) << node->data.divisi
              << " | " << setw(13) << node->data.status
-             << " |" << endl;
+             << " |\n";
 
         garisTabel();
 
@@ -162,7 +233,12 @@ void tampil(Node* node) {
 }
 
 void tampilKaryawan() {
-    cout << "\nDaftar Karyawan:\n";
+    judulHalaman("DAFTAR DATA KARYAWAN");
+
+    if (root == NULL) {
+        pesanInfo("Belum ada data karyawan.");
+        return;
+    }
 
     garisTabel();
 
@@ -170,56 +246,58 @@ void tampilKaryawan() {
          << " | " << setw(13) << "Nama"
          << " | " << setw(13) << "Divisi"
          << " | " << setw(13) << "Status"
-         << " |" << endl;
+         << " |\n";
 
     garisTabel();
 
     tampil(root);
 }
 
+// ================= FITUR PROGRAM =================
 void tambahKaryawan(int nip, string nama, string divisi) {
-    Karyawan k = {nip, nama, divisi, "Tidak Cuti"};
+    if (cari(root, nip) != NULL) {
+        pesanGagal("NIP sudah terdaftar.");
+        return;
+    }
 
+    Karyawan k = {nip, nama, divisi, "Tidak Cuti"};
     root = insert(root, k);
 
-    cout << "Data karyawan berhasil ditambahkan\n";
+    pesanBerhasil("Data karyawan berhasil ditambahkan.");
 }
 
 void editKaryawan(int nip, string namaBaru, string divisiBaru) {
     Node* n = cari(root, nip);
 
     if (n == NULL) {
-        cout << "Karyawan tidak ditemukan!\n";
+        pesanGagal("Karyawan tidak ditemukan.");
         return;
     }
 
     n->data.nama = namaBaru;
     n->data.divisi = divisiBaru;
 
-    cout << "Data karyawan berhasil diedit\n";
+    pesanBerhasil("Data karyawan berhasil diedit.");
 }
 
 void ajukanCuti(int nip) {
     Node* n = cari(root, nip);
 
     if (n == NULL) {
-        cout << "Karyawan tidak ditemukan!\n";
+        pesanGagal("Karyawan tidak ditemukan.");
         return;
     }
 
     if (n->data.status == "Tidak Cuti") {
         n->data.status = "Cuti";
-
         pushRiwayat(nip, "Pengajuan");
 
-        cout << "Pengajuan cuti berhasil\n";
-    }
-    else {
+        pesanBerhasil("Pengajuan cuti berhasil diproses.");
+    } else {
         enqueue(nip);
-
         pushRiwayat(nip, "Antrian");
 
-        cout << "Karyawan sedang cuti, masuk antrian\n";
+        pesanInfo("Karyawan sedang cuti, pengajuan masuk ke antrian.");
     }
 }
 
@@ -227,167 +305,167 @@ void selesaiCuti(int nip) {
     Node* n = cari(root, nip);
 
     if (n == NULL) {
-        cout << "Karyawan tidak ditemukan!\n";
+        pesanGagal("Karyawan tidak ditemukan.");
         return;
     }
 
-    if (n->data.status == "Cuti") {
-        n->data.status = "Tidak Cuti";
+    if (n->data.status != "Cuti") {
+        pesanGagal("Karyawan tidak sedang cuti.");
+        return;
+    }
 
-        pushRiwayat(nip, "Selesai");
+    n->data.status = "Tidak Cuti";
+    pushRiwayat(nip, "Selesai");
 
-        cout << "Cuti selesai\n";
+    pesanBerhasil("Cuti berhasil diselesaikan.");
 
-        if (!antrianKosong() && frontQueue() == nip) {
-            dequeue();
+    if (!antrianKosong() && frontQueue() == nip) {
+        dequeue();
+        n->data.status = "Cuti";
 
-            n->data.status = "Cuti";
-
-            cout << "Antrian berikutnya diproses\n";
-        }
+        pesanInfo("Pengajuan berikutnya langsung diproses dari antrian.");
     }
 }
 
 void hapusKaryawan(int nip) {
     if (cari(root, nip) == NULL) {
-        cout << "Karyawan tidak ditemukan!\n";
+        pesanGagal("Karyawan tidak ditemukan.");
         return;
     }
 
     root = hapus(root, nip);
 
-    cout << "Data berhasil dihapus\n";
+    pesanBerhasil("Data karyawan berhasil dihapus.");
 }
 
 void undo() {
     if (riwayatKosong()) {
-        cout << "Tidak ada aksi undo\n";
+        pesanInfo("Tidak ada aksi untuk di-undo.");
         return;
     }
 
     Riwayat aksi = popRiwayat();
-
     Node* n = cari(root, aksi.nip);
 
-    if (n == NULL)
+    if (n == NULL) {
+        pesanGagal("Data karyawan tidak ditemukan untuk undo.");
         return;
+    }
 
     if (aksi.aksi == "Pengajuan") {
         n->data.status = "Tidak Cuti";
-
-        cout << "Undo pengajuan cuti berhasil\n";
-    }
-
-    else if (aksi.aksi == "Selesai") {
+        pesanBerhasil("Undo pengajuan cuti berhasil.");
+    } else if (aksi.aksi == "Selesai") {
         n->data.status = "Cuti";
+        pesanBerhasil("Undo selesai cuti berhasil.");
+    } else if (aksi.aksi == "Antrian") {
+        if (!antrianKosong()) {
+            dequeue();
+        }
 
-        cout << "Undo selesai cuti berhasil\n";
-    }
-
-    else if (aksi.aksi == "Antrian") {
-        dequeue();
-
-        cout << "Undo antrian berhasil\n";
+        pesanBerhasil("Undo antrian berhasil.");
     }
 }
 
 void tampilAntrian() {
+    judulHalaman("ANTRIAN CUTI");
+
     if (antrianKosong()) {
-        cout << "Antrian kosong\n";
-    }
-    else {
-        cout << "NIP "
+        pesanInfo("Antrian cuti kosong.");
+    } else {
+        cout << "Karyawan dengan NIP "
              << frontQueue()
-             << " sedang menunggu antrian cuti\n";
+             << " sedang menunggu giliran cuti.\n";
     }
 }
 
+// ================= MAIN PROGRAM =================
 int main() {
     int pilihan;
 
     do {
-        cout << "\n=== MENU SISTEM CUTI ===\n";
-        cout << "1. Tambah Karyawan\n";
-        cout << "2. Edit Karyawan\n";
-        cout << "3. Tampil Karyawan\n";
-        cout << "4. Ajukan Cuti\n";
-        cout << "5. Selesai Cuti\n";
-        cout << "6. Hapus Karyawan\n";
-        cout << "7. Undo\n";
-        cout << "8. Tampil Antrian\n";
-        cout << "0. Keluar\n";
-        cout << "Pilih Menu: ";
+        tampilMenu();
         cin >> pilihan;
 
         if (pilihan == 1) {
             int nip;
             string nama, divisi;
 
-            cout << "Masukkan NIP: ";
+            judulHalaman("TAMBAH DATA KARYAWAN");
+
+            cout << "Masukkan NIP    : ";
             cin >> nip;
 
-            cout << "Masukkan Nama: ";
+            cout << "Masukkan Nama   : ";
             cin >> nama;
 
-            cout << "Masukkan Divisi: ";
+            cout << "Masukkan Divisi : ";
             cin >> divisi;
 
             tambahKaryawan(nip, nama, divisi);
-        }
-
+        } 
         else if (pilihan == 2) {
             int nip;
             string nama, divisi;
 
-            cout << "Masukkan NIP: ";
+            judulHalaman("EDIT DATA KARYAWAN");
+
+            cout << "Masukkan NIP        : ";
             cin >> nip;
 
-            cout << "Masukkan Nama Baru: ";
+            cout << "Masukkan Nama Baru  : ";
             cin >> nama;
 
             cout << "Masukkan Divisi Baru: ";
             cin >> divisi;
 
             editKaryawan(nip, nama, divisi);
-        }
-
+        } 
         else if (pilihan == 3) {
             tampilKaryawan();
-        }
-
+        } 
         else if (pilihan == 4) {
             int nip;
+
+            judulHalaman("PENGAJUAN CUTI");
 
             cout << "Masukkan NIP: ";
             cin >> nip;
 
             ajukanCuti(nip);
-        }
-
+        } 
         else if (pilihan == 5) {
             int nip;
+
+            judulHalaman("SELESAIKAN CUTI");
 
             cout << "Masukkan NIP: ";
             cin >> nip;
 
             selesaiCuti(nip);
-        }
-
+        } 
         else if (pilihan == 6) {
             int nip;
+
+            judulHalaman("HAPUS DATA KARYAWAN");
 
             cout << "Masukkan NIP: ";
             cin >> nip;
 
             hapusKaryawan(nip);
-        }
-
+        } 
         else if (pilihan == 7) {
+            judulHalaman("UNDO AKSI TERAKHIR");
             undo();
-        }
-
+        } 
         else if (pilihan == 8) {
             tampilAntrian();
+        } 
+        else if (pilihan == 0) {
+            pesanInfo("Program selesai. Terima kasih.");
+        } 
+        else {
+            pesanGagal("Pilihan menu tidak valid.");
         }
 
     } while (pilihan != 0);
