@@ -24,6 +24,7 @@ struct Node {
 
 Node* root = NULL;
 
+// ================= STACK MANUAL UNTUK RIWAYAT =================
 struct Riwayat {
     int nip;
     string aksi;
@@ -47,11 +48,14 @@ bool riwayatKosong() {
 Riwayat popRiwayat() {
     Riwayat data = *topRiwayat;
     Riwayat* hapus = topRiwayat;
+
     topRiwayat = topRiwayat->next;
     delete hapus;
+
     return data;
 }
 
+// ================= QUEUE MANUAL UNTUK ANTRIAN =================
 struct Antrian {
     int nip;
     Antrian* next;
@@ -73,19 +77,6 @@ void enqueue(int nip) {
     }
 }
 
-void dequeue() {
-    if (frontAntrian == NULL) return;
-
-    Antrian* hapus = frontAntrian;
-    frontAntrian = frontAntrian->next;
-
-    if (frontAntrian == NULL) {
-        rearAntrian = NULL;
-    }
-
-    delete hapus;
-}
-
 bool antrianKosong() {
     return frontAntrian == NULL;
 }
@@ -96,7 +87,9 @@ int frontQueue() {
 
 // ================= BST FUNCTION =================
 Node* insert(Node* node, Karyawan k) {
-    if (node == NULL) return new Node(k);
+    if (node == NULL) {
+        return new Node(k);
+    }
 
     if (k.nip < node->data.nip) {
         node->left = insert(node->left, k);
@@ -108,9 +101,13 @@ Node* insert(Node* node, Karyawan k) {
 }
 
 Node* cari(Node* node, int nip) {
-    if (node == NULL) return NULL;
+    if (node == NULL) {
+        return NULL;
+    }
 
-    if (nip == node->data.nip) return node;
+    if (nip == node->data.nip) {
+        return node;
+    }
 
     if (nip < node->data.nip) {
         return cari(node->left, nip);
@@ -128,7 +125,9 @@ Node* cariMinimum(Node* node) {
 }
 
 Node* hapus(Node* node, int nip) {
-    if (node == NULL) return NULL;
+    if (node == NULL) {
+        return NULL;
+    }
 
     if (nip < node->data.nip) {
         node->left = hapus(node->left, nip);
@@ -301,8 +300,6 @@ void ajukanCuti(int nip) {
         pesanBerhasil("Pengajuan cuti berhasil diproses.");
     } else {
         enqueue(nip);
-        pushRiwayat(nip, "Antrian");
-
         pesanInfo("Karyawan sedang cuti, pengajuan masuk ke antrian.");
     }
 }
@@ -324,13 +321,6 @@ void selesaiCuti(int nip) {
     pushRiwayat(nip, "Selesai");
 
     pesanBerhasil("Cuti berhasil diselesaikan.");
-
-    if (!antrianKosong() && frontQueue() == nip) {
-        dequeue();
-        n->data.status = "Cuti";
-
-        pesanInfo("Pengajuan berikutnya langsung diproses dari antrian.");
-    }
 }
 
 void hapusKaryawan(int nip) {
@@ -346,7 +336,7 @@ void hapusKaryawan(int nip) {
 
 void undo() {
     if (riwayatKosong()) {
-        pesanInfo("Tidak ada aksi untuk di-undo.");
+        cout << "\nTidak ada aksi untuk di-undo\n";
         return;
     }
 
@@ -354,22 +344,15 @@ void undo() {
     Node* n = cari(root, aksi.nip);
 
     if (n == NULL) {
-        pesanGagal("Data karyawan tidak ditemukan untuk undo.");
         return;
     }
 
     if (aksi.aksi == "Pengajuan") {
         n->data.status = "Tidak Cuti";
-        pesanBerhasil("Undo pengajuan cuti berhasil.");
+        cout << "\nUndo: Status cuti karyawan dibatalkan\n";
     } else if (aksi.aksi == "Selesai") {
         n->data.status = "Cuti";
-        pesanBerhasil("Undo selesai cuti berhasil.");
-    } else if (aksi.aksi == "Antrian") {
-        if (!antrianKosong()) {
-            dequeue();
-        }
-
-        pesanBerhasil("Undo antrian berhasil.");
+        cout << "\nUndo: Status cuti karyawan dikembalikan menjadi cuti\n";
     }
 }
 
