@@ -2,7 +2,7 @@
 #include <iomanip>
 using namespace std;
 
-// ================= STRUCT DATA KARYAWAN =================
+// ================= DATA KARYAWAN =================
 struct Karyawan {
     int nip;
     string nama;
@@ -10,7 +10,7 @@ struct Karyawan {
     string status;
 };
 
-// ================= STRUCT BST =================
+// ================= BST =================
 struct Node {
     Karyawan data;
     Node* left;
@@ -47,10 +47,8 @@ bool riwayatKosong() {
 Riwayat popRiwayat() {
     Riwayat data = *topRiwayat;
     Riwayat* hapus = topRiwayat;
-
     topRiwayat = topRiwayat->next;
     delete hapus;
-
     return data;
 }
 
@@ -96,11 +94,9 @@ int frontQueue() {
     return frontAntrian->nip;
 }
 
-// ================= FUNGSI BST =================
+// ================= BST FUNCTION =================
 Node* insert(Node* node, Karyawan k) {
-    if (node == NULL) {
-        return new Node(k);
-    }
+    if (node == NULL) return new Node(k);
 
     if (k.nip < node->data.nip) {
         node->left = insert(node->left, k);
@@ -112,13 +108,9 @@ Node* insert(Node* node, Karyawan k) {
 }
 
 Node* cari(Node* node, int nip) {
-    if (node == NULL) {
-        return NULL;
-    }
+    if (node == NULL) return NULL;
 
-    if (nip == node->data.nip) {
-        return node;
-    }
+    if (nip == node->data.nip) return node;
 
     if (nip < node->data.nip) {
         return cari(node->left, nip);
@@ -136,9 +128,7 @@ Node* cariMinimum(Node* node) {
 }
 
 Node* hapus(Node* node, int nip) {
-    if (node == NULL) {
-        return NULL;
-    }
+    if (node == NULL) return NULL;
 
     if (nip < node->data.nip) {
         node->left = hapus(node->left, nip);
@@ -166,7 +156,7 @@ Node* hapus(Node* node, int nip) {
     return node;
 }
 
-// ================= TAMPILAN =================
+// ================= OUTPUT =================
 void garisMenu() {
     cout << "=====================================\n";
 }
@@ -191,6 +181,13 @@ void pesanInfo(string pesan) {
     cout << "\n[INFO] " << pesan << endl;
 }
 
+void judulHalaman(string judul) {
+    cout << "\n";
+    garisPendek();
+    cout << "        " << judul << endl;
+    garisPendek();
+}
+
 void tampilMenu() {
     cout << "\n";
     garisMenu();
@@ -209,13 +206,22 @@ void tampilMenu() {
     cout << "Pilih menu: ";
 }
 
-void judulHalaman(string judul) {
+bool kembaliKeMenu() {
+    char pilihan;
+
     cout << "\n";
     garisPendek();
-    cout << "        " << judul << endl;
-    garisPendek();
+    cout << "Kembali ke menu utama? (y/n): ";
+    cin >> pilihan;
+
+    if (pilihan == 'y' || pilihan == 'Y') {
+        return true;
+    }
+
+    return false;
 }
 
+// ================= TAMPIL DATA =================
 void tampil(Node* node) {
     if (node != NULL) {
         tampil(node->left);
@@ -253,7 +259,7 @@ void tampilKaryawan() {
     tampil(root);
 }
 
-// ================= FITUR PROGRAM =================
+// ================= FITUR =================
 void tambahKaryawan(int nip, string nama, string divisi) {
     if (cari(root, nip) != NULL) {
         pesanGagal("NIP sudah terdaftar.");
@@ -379,9 +385,10 @@ void tampilAntrian() {
     }
 }
 
-// ================= MAIN PROGRAM =================
+// ================= MAIN =================
 int main() {
     int pilihan;
+    bool lanjut = true;
 
     do {
         tampilMenu();
@@ -403,6 +410,7 @@ int main() {
             cin >> divisi;
 
             tambahKaryawan(nip, nama, divisi);
+            lanjut = kembaliKeMenu();
         } 
         else if (pilihan == 2) {
             int nip;
@@ -410,19 +418,21 @@ int main() {
 
             judulHalaman("EDIT DATA KARYAWAN");
 
-            cout << "Masukkan NIP        : ";
+            cout << "Masukkan NIP         : ";
             cin >> nip;
 
-            cout << "Masukkan Nama Baru  : ";
+            cout << "Masukkan Nama Baru   : ";
             cin >> nama;
 
-            cout << "Masukkan Divisi Baru: ";
+            cout << "Masukkan Divisi Baru : ";
             cin >> divisi;
 
             editKaryawan(nip, nama, divisi);
+            lanjut = kembaliKeMenu();
         } 
         else if (pilihan == 3) {
             tampilKaryawan();
+            lanjut = kembaliKeMenu();
         } 
         else if (pilihan == 4) {
             int nip;
@@ -433,6 +443,7 @@ int main() {
             cin >> nip;
 
             ajukanCuti(nip);
+            lanjut = kembaliKeMenu();
         } 
         else if (pilihan == 5) {
             int nip;
@@ -443,6 +454,7 @@ int main() {
             cin >> nip;
 
             selesaiCuti(nip);
+            lanjut = kembaliKeMenu();
         } 
         else if (pilihan == 6) {
             int nip;
@@ -453,22 +465,28 @@ int main() {
             cin >> nip;
 
             hapusKaryawan(nip);
+            lanjut = kembaliKeMenu();
         } 
         else if (pilihan == 7) {
             judulHalaman("UNDO AKSI TERAKHIR");
+
             undo();
+            lanjut = kembaliKeMenu();
         } 
         else if (pilihan == 8) {
             tampilAntrian();
+            lanjut = kembaliKeMenu();
         } 
         else if (pilihan == 0) {
             pesanInfo("Program selesai. Terima kasih.");
+            lanjut = false;
         } 
         else {
             pesanGagal("Pilihan menu tidak valid.");
+            lanjut = kembaliKeMenu();
         }
 
-    } while (pilihan != 0);
+    } while (lanjut);
 
     return 0;
 }
