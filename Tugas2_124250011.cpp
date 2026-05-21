@@ -81,10 +81,6 @@ bool antrianKosong() {
     return frontAntrian == NULL;
 }
 
-int frontQueue() {
-    return frontAntrian->nip;
-}
-
 // ================= BST FUNCTION =================
 Node* insert(Node* node, Karyawan k) {
     if (node == NULL) {
@@ -360,11 +356,20 @@ void tampilAntrian() {
     judulHalaman("ANTRIAN CUTI");
 
     if (antrianKosong()) {
-        pesanInfo("Antrian cuti kosong.");
-    } else {
-        cout << "Karyawan dengan NIP "
-             << frontQueue()
-             << " sedang menunggu giliran cuti.\n";
+        cout << "Antrian kosong\n";
+        return;
+    }
+
+    Antrian* bantu = frontAntrian;
+
+    while (bantu != NULL) {
+        Node* n = cari(root, bantu->nip);
+
+        if (n != NULL) {
+            cout << n->data.nama << " menunggu giliran cuti\n";
+        }
+
+        bantu = bantu->next;
     }
 }
 
